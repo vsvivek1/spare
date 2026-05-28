@@ -1,65 +1,487 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+import {
+ useEffect,
+ useState
+} from "react";
+
+import Link from "next/link";
+
+import {
+ useAuth
+} from "@/contexts/AuthContext";
+
+import {
+ getUserProfile
+} from "@/services/userService";
+
+export default function HomePage(){
+
+ const {
+   user,
+   loading
+ } = useAuth();
+
+ const [profile,
+ setProfile] =
+ useState<any>(null);
+
+ const [checkingProfile,
+ setCheckingProfile] =
+ useState(true);
+
+ useEffect(()=>{
+
+   const loadProfile =
+   async()=>{
+
+     if(!user){
+
+       setCheckingProfile(
+         false
+       );
+
+       return;
+
+     }
+
+     const data =
+     await getUserProfile(
+       user.uid
+     );
+
+     setProfile(data);
+
+     setCheckingProfile(
+       false
+     );
+
+   };
+
+   if(!loading){
+
+     loadProfile();
+
+   }
+
+ },[
+   user,
+   loading
+ ]);
+
+ if(loading){
+
+   return(
+<h1>
+ Loading...
+</h1>
+   );
+
+ }
+
+ if(checkingProfile){
+
+   return(
+<h1>
+ Checking Profile...
+</h1>
+   );
+
+ }
+
+ // Not logged in
+ if(!user){
+
+   return(
+
+<div
+style={{
+ padding:"30px"
+}}
+>
+
+<h1>
+ spareX
+</h1>
+
+<p>
+
+Vehicle Spare Marketplace
+
+</p>
+
+<br/>
+
+<Link href="/login">
+
+<button>
+ Login
+</button>
+
+</Link>
+
+</div>
+
+   );
+
+ }
+
+ // Logged in but no profile
+ if(!profile){
+
+   return(
+
+<div
+style={{
+ padding:"30px"
+}}
+>
+
+<h1>
+ Complete Registration
+</h1>
+
+<p>
+Please create profile
+to continue.
+</p>
+
+<br/>
+
+<Link href="/user/register">
+
+<button>
+ Create Profile
+</button>
+
+</Link>
+
+</div>
+
+   );
+
+ }
+
+ const spareParts = [
+
+   {
+     name:"Brake Pad",
+     image:"https://images.unsplash.com/photo-1487754180451-c456f719a1fc?q=80&w=1200&auto=format&fit=crop",
+     vehicle:"Toyota Innova",
+     price:1200
+   },
+
+   {
+     name:"Battery",
+     image:"https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?q=80&w=1200&auto=format&fit=crop",
+     vehicle:"Swift",
+     price:4500
+   },
+
+   {
+     name:"Engine Oil",
+     image:"https://images.unsplash.com/photo-1635764706066-8e47cfb8d78b?q=80&w=1200&auto=format&fit=crop",
+     vehicle:"Hyundai i20",
+     price:900
+   },
+
+   {
+     name:"Headlight",
+     image:"https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1200&auto=format&fit=crop",
+     vehicle:"Fortuner",
+     price:3200
+   },
+
+   {
+     name:"Tyre",
+     image:"https://images.unsplash.com/photo-1486006920555-c77dcf18193c?q=80&w=1200&auto=format&fit=crop",
+     vehicle:"Baleno",
+     price:5800
+   },
+
+   {
+     name:"Suspension",
+     image:"https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=1200&auto=format&fit=crop",
+     vehicle:"Honda City",
+     price:7600
+   }
+
+ ];
+
+ const workshops = [
+
+   {
+     name:"AutoFix Workshop",
+     image:"https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?q=80&w=1200&auto=format&fit=crop",
+     rating:"4.5"
+   },
+
+   {
+     name:"City Garage",
+     image:"https://images.unsplash.com/photo-1517524206127-48bbd363f3d7?q=80&w=1200&auto=format&fit=crop",
+     rating:"4.2"
+   },
+
+   {
+     name:"Premium Motors",
+     image:"https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?q=80&w=1200&auto=format&fit=crop",
+     rating:"4.8"
+   }
+
+ ];
+
+ return(
+
+<div
+style={{
+ padding:"20px"
+}}
+>
+
+<h1>
+ spareX Feed
+</h1>
+
+<p>
+
+Welcome
+
+<b>
+ {
+   profile.name
+ }
+</b>
+
+</p>
+
+<p>
+
+Role:
+{
+ profile.role
+}
+
+</p>
+
+<p>
+
+Plan:
+{
+ profile.isPremium
+ ? " Premium"
+ : " Free"
+}
+
+</p>
+
+<br/>
+
+<input
+placeholder="Search spare parts..."
+style={{
+ width:"100%",
+ padding:"10px",
+ borderRadius:"10px",
+ border:"1px solid #ccc"
+}}
+/>
+
+<br/><br/>
+
+<h2>
+ Latest Spare Parts
+</h2>
+
+<div
+style={{
+ display:"grid",
+ gridTemplateColumns:
+ "repeat(auto-fill,minmax(250px,1fr))",
+ gap:"15px"
+}}
+>
+
+{
+ spareParts.map(
+ (item,index)=>{
+
+   return(
+
+<div
+key={index}
+style={{
+ border:"1px solid #ccc",
+ borderRadius:"10px",
+ padding:"15px"
+}}
+>
+
+<img
+src={item.image}
+style={{
+ width:"100%",
+ height:"180px",
+ objectFit:"cover",
+ borderRadius:"10px"
+}}
+/>
+
+<br/><br/>
+
+<h3>
+{
+ item.name
+}
+</h3>
+
+<p>
+{
+ item.vehicle
+}
+</p>
+
+<p>
+
+₹
+{
+ item.price
+}
+
+</p>
+
+<p>
+Condition: Used
+</p>
+
+<button>
+ View Details
+</button>
+
+</div>
+
+   );
+
+ })
+}
+
+</div>
+
+<br/><br/>
+
+<h2>
+ Nearby Workshops
+</h2>
+
+<div
+style={{
+ display:"flex",
+ gap:"15px",
+ overflowX:"auto"
+}}
+>
+
+{
+ workshops.map(
+ (item,index)=>{
+
+   return(
+
+<div
+key={index}
+style={{
+ minWidth:"260px",
+ border:"1px solid #ccc",
+ borderRadius:"10px",
+ padding:"15px"
+}}
+>
+
+<img
+src={item.image}
+style={{
+ width:"100%",
+ height:"150px",
+ objectFit:"cover",
+ borderRadius:"10px"
+}}
+/>
+
+<br/><br/>
+
+<h3>
+{
+ item.name
+}
+</h3>
+
+<p>
+Kozhikode
+</p>
+
+<p>
+
+⭐
+{
+ item.rating
+}
+
+</p>
+
+<button>
+ View Workshop
+</button>
+
+</div>
+
+   );
+
+ })
+}
+
+</div>
+
+<br/><br/>
+
+<h2>
+ Premium Benefits
+</h2>
+
+<div
+style={{
+ border:"1px solid gold",
+ padding:"20px",
+ borderRadius:"10px"
+}}
+>
+
+<p>
+✓ Direct contact access
+</p>
+
+<p>
+✓ Unlimited photos
+</p>
+
+<p>
+✓ Featured listings
+</p>
+
+<p>
+✓ Priority visibility
+</p>
+
+<Link href="/pricing">
+
+<button>
+ Upgrade Now
+</button>
+
+</Link>
+
+</div>
+
+</div>
+
+ );
+
 }
